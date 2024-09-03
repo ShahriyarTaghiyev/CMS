@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fc;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .sidebar a {
+            text-decoration: none;
+            color: #333;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .sidebar a:hover {
+            background-color: #f1f1f1;
+        }
+        .sidebar .logout {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+        .content .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .content .header h2 {
+            margin: 0;
+        }
+        .content .header input {
+            padding: 10px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .content .header button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .content .header button:hover {
+            background-color: #0056b3;
+        }
+        .table-container {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        table th {
+            background-color: #f1f1f1;
+        }
+        table button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        table button:hover {
+            background-color: #0056b3;
+        }
+        .add-new-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .add-new-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div>
+            <h2>Administrator</h2>
+            <a href="home.html">Home</a>
+            <a href="home.html">Dashboard</a>
+            <a href="doctors.html" class="active">Doctors</a>
+            <a href="#">Schedule</a>
+            <a href="#">Appointment</a>
+            <a href="#">Patients</a>
+            <a href="#" class="logout" onclick="logout()">Log out</a>
+        </div>
+        
+    </div>
+    <div class="content">
+        <div class="header">
+            <h2>Doctors</h2>
+            <div>
+                <input type="text" placeholder="Search Doctor name or Email">
+                <button>Search</button>
+            </div>
+        </div>
+        <div class="table-container">
+            <button class="add-new-button">+ Add New</button>
+            <h3>Add New Doctor</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Doctor Name</th>
+                        <th>Email</th>
+                        <th>Specialties</th>
+                        <th>Events</th>
+                    </tr>
+                </thead>
+                <tbody id="doctors-table">
+                    <!-- Doctor rows will be appended here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('http://192.168.78.139/api/admin/doctors')
+                .then(response => response.json())
+                .then(data => {
+                    const doctorsTable = document.getElementById('doctors-table');
+                    data.forEach(doctor => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${doctor.first_name} ${doctor.last_name}</td>
+                            <td>${doctor.email}</td>
+                            <td>${doctor.specialty}</td>
+                            <td>
+                                <button onclick="editDoctor(${doctor.id})">Edit</button>
+                                <button onclick="viewDoctor(${doctor.id})">View</button>
+                                <button onclick="removeDoctor(${doctor.id})">Remove</button>
+                            </td>
+                        `;
+                        doctorsTable.appendChild(row);
+                    });
+                });
+        });
+
+        function editDoctor(id) {
+            // Implement edit doctor functionality
+            fetch('http://192.168.78.139/api/admin/doctors/' + id) 
+        }
+
+        function viewDoctor(id) {
+            // Implement view doctor functionality
+            fetch('http://192.168.78.139/api/admin/doctors/' + id)
+        }
+
+        function removeDoctor(id) {
+            // Implement remove doctor functionality
+            fetch('http://192.168.78.139/api/admin/doctors/' + id, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+           .then(response => response.json())
+        }
+        function logout() {
+            fetch("http://192.168.78.139/api/auth/logout", {
+                method: "GET",
+                credentials: "include"  // Include credentials if cookies or authentication are required
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();  // Assuming the response is JSON
+            })
+            .then(data => {
+                console.log("Logout successful:", data);
+                window.location.href = 'home.html';
+                // Handle successful logout, e.g., redirect to a login page
+            })
+            .catch(error => {
+                console.error("There was a problem with the fetch operation:", error);
+            });
+            
+        }
+    </script>
+</body>
+</html>
